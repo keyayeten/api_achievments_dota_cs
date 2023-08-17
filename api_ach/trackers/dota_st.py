@@ -113,6 +113,11 @@ def aganim_purchase(player_id: int) -> int:
                 for match in get_player_stats(player_id)])
 
 
+def first_blood_taken(player_id: int):
+    return min([match["firstblood_claimed"]
+                for match in get_player_stats(player_id)]) is not None
+
+
 def get_twitch(player_id: int):
     pass
 
