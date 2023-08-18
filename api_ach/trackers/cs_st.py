@@ -11,7 +11,7 @@ _HEAD_KILL_STAT = 25
 _TARGET_HEAD = 20
 
 
-def knife_kill_task(cs_id, initial_value=None):
+def knife_kill_task(cs_id, initial_value=None, **kwargs):
     knife_kill_stats = requests.get(
         _URL_STATS+str(cs_id)).json()["playerstats"][
             "stats"][_KNIFE_INDEX]['value']
@@ -20,7 +20,7 @@ def knife_kill_task(cs_id, initial_value=None):
     return knife_kill_stats
 
 
-def beretas_stats(cs_id, initial_value=None):
+def beretas_stats(cs_id, initial_value=None, **kwargs):
     beret_kill_stats = requests.get(
         _URL_STATS+str(cs_id)).json()["playerstats"][
             "stats"][_BERETAS_INDEX]['value']
@@ -29,7 +29,7 @@ def beretas_stats(cs_id, initial_value=None):
     return beret_kill_stats
 
 
-def inferno_win_stats(cs_id, initial_value=None):
+def inferno_win_stats(cs_id, initial_value=None, **kwargs):
     inf_wins = requests.get(
         _URL_STATS+str(cs_id)).json()[
             "playerstats"]["stats"][_INF_WIN_STAT]['value']
@@ -38,14 +38,13 @@ def inferno_win_stats(cs_id, initial_value=None):
     return inf_wins
 
 
-def headshots_stats(cs_id, initial_value=None):
+def headshots_stats(cs_id, initial_value=None, first_val=0):
     headshots = requests.get(
         _URL_STATS+str(cs_id)).json()[
             "playerstats"]["stats"][_HEAD_KILL_STAT]['value']
-    if initial_value:
-        return headshots > initial_value + _TARGET_HEAD
-    return headshots
+
+    return headshots, headshots >= first_val + _TARGET_HEAD
 
 
-def steam_connected(cs_id, initial_value=None):
+def steam_connected(cs_id, initial_value=None, **kwargs):
     pass
