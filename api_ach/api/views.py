@@ -40,6 +40,9 @@ TASKS = {
 
 def check_access(request):
     id = request.GET.get("id")
+    if not id:
+        return JsonResponse({"access": False,
+                             "error": "id не передан"})
     try:
         if len(str(id)) == 8:
             return JsonResponse({"access": TASKS['dota_acc'](id)})
@@ -47,7 +50,7 @@ def check_access(request):
             return JsonResponse({"access": TASKS['cs_acc'](id)})
     except Exception as e:
         return JsonResponse({"access": False,
-                             "error": e})
+                             "error": str(e)})
 
 
 def update_tasks(request):
