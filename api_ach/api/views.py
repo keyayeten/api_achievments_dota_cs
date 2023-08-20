@@ -14,6 +14,11 @@ TASKS = {
     'dota258052': (dota_st.deny_god, 20),
     'dota522247': (dota_st.aganim_purchase, None),
     'dota737288': (dota_st.first_blood_time, None),
+    'dota862226': (dota_st.wraith_radiance, None),
+    'dota960535': (dota_st.three_universal, 3),
+    'dota151576': (dota_st.ten_stacks, 10),
+    'dota833561': (dota_st.deep_late, 60),
+    'dota163864': (dota_st.courier_kills, 3),
 
 
 
@@ -22,7 +27,27 @@ TASKS = {
     'cs516108': (cs_st.beretas_stats, 3),
     'cs725004': (cs_st.inferno_win_stats, None),
     'cs256012': (cs_st.headshots_stats, 20),
+    'cs399387': (cs_st.defusing_bombs, 10),
+    'cs722936': (cs_st.planting_bombs, 10),
+    'cs940061': (cs_st.heg_kills, 10),
+    'cs669722': (cs_st.molly_kills, 3),
+
+
+    "dota_acc": dota_st.dota_acc,
+    "cs_acc": cs_st.cs_acc,
 }
+
+
+def check_access(request):
+    id = request.GET.get("id")
+    try:
+        if len(str(id)) == 8:
+            return JsonResponse({"access": TASKS['dota_acc'](id)})
+        else:
+            return JsonResponse({"access": TASKS['cs_acc'](id)})
+    except Exception as e:
+        return JsonResponse({"access": False,
+                             "error": e})
 
 
 def update_tasks(request):

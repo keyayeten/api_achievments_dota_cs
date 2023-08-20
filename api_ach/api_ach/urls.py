@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import update_tasks
+from api.views import update_tasks, check_access
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('status_tasks/', update_tasks, name='status'),
+    path('checkProfile/', check_access, name='access'),
 ]

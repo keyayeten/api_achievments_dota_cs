@@ -1,6 +1,10 @@
 import requests
 
-FIVE_LAST = 2
+FIVE_LAST = 1
+_ITEM_RADIANCE_ID = 250
+_ITEM_AGANIM_ID = 141
+_UNIVERSAL_MIN_ID = 91
+_UNIVERSAL_MAX_ID = 123
 
 
 def get_player_stats(player_id: int) -> list:
@@ -70,19 +74,6 @@ def stacked_creeps(player_id: int, **kwargs) -> int:
     return max(stacks_creeps)
 
 
-def courier_kills(player_id: int, **kwargs) -> int:
-    """Get best result of killed couriers."""
-    url = f'https://www.opendota.com/api/players/{player_id}/matches/'
-    matches_list = requests.get(url).json()[:FIVE_LAST]
-    cour_kills = []
-    for match in matches_list:
-        match_id = match['match_id']
-        match_url = f'https://www.opendota.com/api/matches/{match_id}'
-        kills = requests.get(match_url).json().get('courier_kills', 0)
-        cour_kills.append(kills)
-    return max(cour_kills)
-
-
 def count_runes_wise(player_id: int, **kwargs) -> int:
     """Get best result of taken runes of wise."""
     url = f'https://www.opendota.com/api/players/{player_id}/matches/'
@@ -109,10 +100,13 @@ def deny_god(player_id: int, **kwargs) -> int:
 
 def aganim_purchase(player_id: int, **kwargs) -> int:
     """Покупка аганима"""
-    res = min([_safe_get(match["purchase_log"],
-                         "Aganim_scepter")
-               for match in get_player_stats(player_id)])
-    return res, res < 10
+    return None, any([_is_agaganim_in([stat["item_0"],
+                                       stat["item_1"],
+                                       stat["item_2"],
+                                       stat["item_3"],
+                                       stat["item_4"],
+                                       stat["item_5"]])
+                     for stat in get_player_stats(player_id)])
 
 
 def first_blood_taken(player_id: int, **kwargs):
@@ -124,16 +118,85 @@ def get_twitch(player_id: int):
     pass
 
 
-if __name__ == "__main__":
-    print(aganim_purchase(279786838))
+def _is_radiance_in(item_list: list):
+    return _ITEM_RADIANCE_ID in item_list
 
-    url = 'https://www.opendota.com/api/players/279786838/matches/'
-    matches_list = requests.get(url).json()[:FIVE_LAST]
-    fb_timings = []
-    for match in matches_list:
-        match_id = match['match_id']
-        match_url = f'https://www.opendota.com/api/matches/{match_id}'
-        timing = requests.get(match_url).json()['first_blood_time']
-        fb_timings.append(timing)
-    print(min(fb_timings))
-    print(first_blood_time(279786838))
+
+def _is_agaganim_in(item_list: list):
+    return _ITEM_AGANIM_ID in item_list
+
+
+def wraith_radiance(player_id: int, **kwargs):
+    return None, any([_is_radiance_in([stat["item_0"],
+                                       stat["item_1"],
+                                       stat["item_2"],
+                                       stat["item_3"],
+                                       stat["item_4"],
+                                       stat["item_5"]])
+                     for stat in get_player_stats(player_id)])
+
+
+def three_universal(player_id: int, initial_value=3, first_value=0):
+    heroes = [hero["hero_id"]
+              for hero in get_player_stats(player_id)[:FIVE_LAST]]
+
+    if _universal_count(heroes):
+        return first_value + 1, first_value + 1 >= initial_value
+    return first_value, False
+
+
+def _universal_count(ids: int):
+    return len(list(filter(
+        lambda hero:  _UNIVERSAL_MAX_ID >= hero >= _UNIVERSAL_MIN_ID,
+        ids)))
+
+
+def ten_stacks(player_id: int, initial_value=10, **kwargs):
+    res = max([stack["creeps_stacked"]
+               for stack in get_player_stats(player_id)])
+    if res:
+        return res, res >= initial_value
+    return None, False
+
+
+def _is_winner(stats):
+    return stats['win'] == 1
+
+
+def deep_late(player_id: int, initial_value=60, **kwargs):
+    result = max(stat["duration"] // 60
+                 for stat in get_player_stats(player_id) if _is_winner(stat))
+    return result, result >= initial_value
+
+
+def courier_kills(player_id: int, initial_value=3, **kwargs):
+    result = max(stat["courier_kills"]
+                 for stat in get_player_stats(player_id) if _is_winner(stat))
+    if result:
+        return result, result >= initial_value
+    return result, False
+
+
+def dota_acc(player_id):
+    url = f'https://www.opendota.com/api/players/{player_id}/matches/'
+    return requests.get(url) is not None
+
+
+if __name__ == "__main__":
+    # print(aganim_purchase(279786838))
+
+    # url = 'https://www.opendota.com/api/players/279786838/matches/'
+    # matches_list = requests.get(url).json()[:FIVE_LAST]
+    # fb_timings = []
+    # for match in matches_list:
+    #     match_id = match['match_id']
+    #     match_url = f'https://www.opendota.com/api/matches/{match_id}'
+    #     timing = requests.get(match_url).json()['first_blood_time']
+    #     fb_timings.append(timing)
+    # print(min(fb_timings))
+    # print(first_blood_time(279786838))
+    # print(wraith_radiance(279786838))
+    # print(three_universal(279786838))
+    # print(ten_stacks(279786838))
+    # print(deep_late(279786838))
+    print(dota_acc(279786838))
