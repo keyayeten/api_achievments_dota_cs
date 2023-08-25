@@ -31,6 +31,9 @@ TASKS = {
     'cs722936': (cs_st.planting_bombs, 10),
     'cs940061': (cs_st.heg_kills, 10),
     'cs669722': (cs_st.molly_kills, 3),
+    'cs643104': (cs_st.play_all_maps, 1),
+    'cs876577': (cs_st.three_itly, 3),
+    'cs780323': (cs_st.deadinside, 100),
 
 
     "dota_acc": dota_st.dota_acc,

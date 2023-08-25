@@ -120,3 +120,66 @@ def cs_acc(cs_id):
         return True
     except KeyError:
         return False
+
+
+def play_all_maps(cs_id, initial_value=1, first_val=None):
+    response = requests.get(_URL_STATS+str(cs_id)).json()
+    if not first_val:
+        return {
+            "total_wins_map_de_dust2": response[
+                "playerstats"]["stats"][31]['value'],
+            "total_wins_map_de_inferno": response[
+                "playerstats"]["stats"][32]['value'],
+            "total_wins_map_de_nuke": response[
+                "playerstats"]["stats"][33]['value'],
+            "total_wins_map_de_train": response[
+                "playerstats"]["stats"][34]['value'],
+            "total_wins_map_de_vertigo": response[
+                "playerstats"]["stats"][108]['value'],
+            "total_wins_map_de_cbble": response[
+                "playerstats"]["stats"][30]['value'],
+            "total_wins_map_cs_italy": response[
+                "playerstats"]["stats"][28]['value'],
+                }, False
+    dust = response["playerstats"]["stats"][31]['value']
+    ifer = response["playerstats"]["stats"][32]['value']
+    nuke = response["playerstats"]["stats"][33]['value']
+    train = response["playerstats"]["stats"][34]['value']
+    vert = response["playerstats"]["stats"][108]['value']
+    cbbl = response["playerstats"]["stats"][30]['value']
+    itly = response["playerstats"]["stats"][28]['value']
+
+    res = {
+        "total_wins_map_de_dust2": first_val["total_wins_map_de_dust2"] - dust,
+        "total_wins_map_de_inferno": first_val["total_wins_map_de_inferno"]
+        - ifer,
+
+        "total_wins_map_de_nuke": first_val["total_wins_map_de_nuke"] - nuke,
+        "total_wins_map_de_train": first_val["total_wins_map_de_train"]
+        - train,
+
+        "total_wins_map_de_vertigo": first_val["total_wins_map_de_vertigo"]
+        - vert,
+
+        "total_wins_map_de_cbble": first_val["total_wins_map_de_cbble"] - cbbl,
+        "total_wins_map_cs_italy": first_val["total_wins_map_cs_italy"] - itly,
+    }
+    return res, all(map(lambda x: x[1] >= initial_value, res.items()))
+
+
+def three_itly(cs_id, initial_value=3, first_val=None):
+    response = requests.get(
+        _URL_STATS+str(cs_id)).json()[
+            "playerstats"]["stats"][28]['value']
+    if first_val:
+        return response, response - first_val >= initial_value
+    return response, False
+
+
+def deadinside(cs_id, initial_value=100, first_val=None):
+    response = requests.get(
+        _URL_STATS+str(cs_id)).json()[
+            "playerstats"]["stats"][1]['value']
+    if first_val:
+        return response, False
+    return response, response - first_val >= initial_value
